@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+body{margin:0;font-family:system-ui,sans-serif;background:#f5f5f3;color:#1a1a18}
+#app{max-width:960px;margin:0 auto;padding:16px}
+h1{font-size:17px;font-weight:500;margin:0 0 16px}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;align-items:center}
+.fl{font-size:12px;color:#777;margin-right:2px}
+button.fb{padding:5px 11px;font-size:12px;border-radius:20px;border:1px solid #ccc;background:#fff;cursor:pointer;color:#555}
+button.fb.on{background:#1D9E75;border-color:#1D9E75;color:#fff;font-weight:500}
+input#srch{width:100%;padding:8px 12px;font-size:13px;border:1px solid #ccc;border-radius:8px;margin-bottom:10px;box-sizing:border-box;outline:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.card{background:#fff;border-radius:12px;border:1px solid #e5e5e3;overflow:hidden}
+.card.on{border:2px solid #1D9E75}
+.card-top{height:80px;display:flex;align-items:center;justify-content:center;font-size:32px}
+.card-body{padding:10px 12px}
+.cname{font-size:13px;font-weight:500;margin-bottom:6px}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+.tag{font-size:11px;padding:2px 7px;border-radius:10px;font-weight:500}
+.cdesc{font-size:12px;color:#666;line-height:1.5;margin-bottom:6px}
+.csets{font-size:11px;color:#0F6E56;font-weight:500;margin-bottom:8px}
+button.addbtn{width:100%;padding:6px;font-size:12px;border-radius:7px;border:1px solid #ccc;background:#fff;cursor:pointer;color:#666}
+button.addbtn.on{background:#E1F5EE;color:#0F6E56;border-color:#5DCAA5;font-weight:500}
+.info{font-size:12px;color:#888;margin-bottom:8px}
+.tabs{display:flex;border-bottom:1px solid #e5e5e3;margin-bottom:16px;background:#fff;padding:0 4px}
+button.tab{padding:10px 14px;font-size:13px;font-weight:500;border:none;background:none;cursor:pointer;color:#888;border-bottom:2px solid transparent;margin-bottom:-1px}
+button.tab.on{color:#1D9E75;border-bottom-color:#1D9E75}
+.pitem{background:#fff;border:1px solid #e5e5e3;border-radius:10px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start;margin-bottom:8px}
+.picon{font-size:24px;width:36px;text-align:center;flex-shrink:0}
+.pinfo{flex:1}
+.pinfo h4{font-size:13px;font-weight:500;margin:0 0 3px}
+.pinfo p{font-size:12px;color:#888;margin:0}
+.psets{font-size:11px;color:#0F6E56;font-weight:500;margin-top:3px}
+button.rmbtn{padding:4px 10px;font-size:11px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;color:#888;flex-shrink:0}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+.scard{background:#f0ede6;border-radius:8px;padding:10px;text-align:center}
+.snum{font-size:20px;font-weight:500;color:#1D9E75}
+.slbl{font-size:11px;color:#777;margin-top:2px}
+.wcard{background:#fff;border:1px solid #e5e5e3;border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.wbadge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;background:#E1F5EE;color:#0F6E56;margin-bottom:7px;font-weight:500}
+.wcard h3{font-size:14px;font-weight:500;margin:0 0 5px}
+.wcard p{font-size:13px;color:#666;line-height:1.6;margin:0}
+.empty{text-align:center;padding:3rem;color:#888;font-size:13px}
+</style>
+</head>
+<body>
+<div id="app">
+  <h1>PreHab — Exercices physiques</h1>
+  <div class="tabs">
+    <button class="tab on" id="t-lib">Bibliothèque</button>
+    <button class="tab" id="t-prog">Mon programme (<span id="pc">0</span>)</button>
+    <button class="tab" id="t-plan">Plan 4 semaines</button>
+  </div>
+  <div id="v-lib">
+    <input id="srch" placeholder="Rechercher (nom, muscle, équipement…)">
+    <div class="filters">
+      <span class="fl">Type :</span>
+      <button class="fb on" data-f="cat" data-v="all">Tous</button>
+      <button class="fb" data-f="cat" data-v="strength">Musculation</button>
+      <button class="fb" data-f="cat" data-v="cardio">Cardio</button>
+      <button class="fb" data-f="cat" data-v="core">Core</button>
+      <button class="fb" data-f="cat" data-v="stretching">Stretching</button>
+    </div>
+    <div class="filters">
+      <span class="fl">Niveau :</span>
+      <button class="fb on" data-f="lvl" data-v="all">Tous</button>
+      <button class="fb" data-f="lvl" data-v="beginner">Débutant</button>
+      <button class="fb" data-f="lvl" data-v="intermediate">Intermédiaire</button>
+    </div>
+    <div class="filters">
+      <span class="fl">Semaine :</span>
+      <button class="fb on" data-f="wk" data-v="all">Toutes</button>
+      <button class="fb" data-f="wk" data-v="1-2">S1–2</button>
+      <button class="fb" data-f="wk" data-v="3-4">S3–4</button>
+    </div>
+    <div class="info" id="info"></div>
+    <div class="grid" id="grid"></div>
+  </div>
+  <div id="v-prog" style="display:none">
+    <div class="stats">
+      <div class="scard"><div class="snum" id="s-str">0</div><div class="slbl">Musculation</div></div>
+      <div class="scard"><div class="snum" id="s-car">0</div><div class="slbl">Cardio</div></div>
+      <div class="scard"><div class="snum" id="s-cor">0</div><div class="slbl">Core</div></div>
+      <div class="scard"><div class="snum" id="s-stre">0</div><div class="slbl">Stretching</div></div>
+    </div>
+    <div id="plist"></div>
+  </div>
+  <div id="v-plan" style="display:none">
+    <div class="wcard"><div class="wbadge">Semaines 1–2 · Initiation</div><h3>3 sessions / semaine — 30 à 40 min</h3><p>Priorité au core, mobilité et cardio basse intensité (50–60% FCmax). Créer la routine sans fatigue excessive. Exercices clés : marche, vélo, gainage, pont fessier, respiration diaphragmatique.</p></div>
+    <div class="wcard"><div class="wbadge">Semaines 3–4 · Progression</div><h3>4 sessions / semaine — 40 à 50 min</h3><p>Renforcement membres inférieurs (squat, leg press) et tronc (dead bug, bird dog). Cardio 65–75% FCmax. HIIT court si bonne tolérance. Arrêt 48h avant chirurgie.</p></div>
+    <div class="wcard"><h3>Principes généraux</h3><p>Cibler VO2max, force MI et endurance du tronc. Éviter hyperpression abdominale (Valsalva, crunch). Adapter si contexte oncologique. Intégrer respiration profonde et toux contrôlée (préparation post-op).</p></div>
+  </div>
+</div>
+<script>
+var DB=[
+  {id:'walk',name:'Marche rapide',cat:'cardio',lvl:'beginner',wk:'1-2',muscle:'Membres inférieurs',equip:'Aucun',icon:'🚶',desc:'Marche soutenue 20–30 min. Idéal pour initier l\'endurance cardio sans impact.',sets:'3× 10 min à 50–60% FCmax'},
+  {id:'bike',name:'Vélo stationnaire',cat:'cardio',lvl:'beginner',wk:'1-2',muscle:'Membres inférieurs',equip:'Vélo',icon:'🚴',desc:'Cardio bas impact, excellent pour préserver les articulations.',sets:'20–30 min à 55–65% FCmax'},
+  {id:'swim',name:'Natation douce',cat:'cardio',lvl:'beginner',wk:'1-2',muscle:'Corps entier',equip:'Piscine',icon:'🏊',desc:'Très faible impact articulaire. Renforce la respiration et la capacité cardio.',sets:'20–30 min continu'},
+  {id:'ellip',name:'Elliptique',cat:'cardio',lvl:'intermediate',wk:'1-2',muscle:'Corps entier',equip:'Elliptique',icon:'🏃',desc:'Alternative à la course, sans impact. Sollicite tronc et membres inférieurs.',sets:'20–30 min à 60–70% FCmax'},
+  {id:'hiit',name:'HIIT court',cat:'cardio',lvl:'intermediate',wk:'3-4',muscle:'Corps entier',equip:'Aucun',icon:'⚡',desc:'30 sec effort / 30 sec repos. Améliore rapidement le VO2max.',sets:'8–10 cycles, 2–3×/semaine'},
+  {id:'row',name:'Rowing ergomètre',cat:'cardio',lvl:'intermediate',wk:'3-4',muscle:'Dos, membres inférieurs',equip:'Rameur',icon:'🚣',desc:'Cardio complet à faible impact. Sollicite 86% des groupes musculaires.',sets:'20 min à 65–75% FCmax'},
+  {id:'squat',name:'Squat air',cat:'strength',lvl:'beginner',wk:'1-2',muscle:'Quadriceps, fessiers',equip:'Aucun',icon:'🦵',desc:'Squat au poids du corps. Base du renforcement MI. Dos droit, descente contrôlée.',sets:'3× 12 reps, 60 sec repos'},
+  {id:'lunge',name:'Fente avant',cat:'strength',lvl:'beginner',wk:'1-2',muscle:'Quadriceps, ischio-jambiers',equip:'Aucun',icon:'🦵',desc:'Renforcement unilatéral. Améliore équilibre et symétrie musculaire.',sets:'3× 10 reps / jambe'},
+  {id:'glute',name:'Pont fessier',cat:'strength',lvl:'beginner',wk:'1-2',muscle:'Fessiers, ischio-jambiers',equip:'Tapis',icon:'🟤',desc:'Allongé sur le dos, pieds à plat. Soulever le bassin lentement. Sécurisé abdomen.',sets:'3× 15 reps, 45 sec repos'},
+  {id:'calf',name:'Élévation mollets',cat:'strength',lvl:'beginner',wk:'1-2',muscle:'Mollets',equip:'Aucun',icon:'🦶',desc:'Montée sur la pointe des pieds. Prévention thrombose veineuse.',sets:'3× 20 reps'},
+  {id:'legp',name:'Leg press machine',cat:'strength',lvl:'intermediate',wk:'3-4',muscle:'Quadriceps, fessiers',equip:'Machine',icon:'🏋️',desc:'Charge contrôlée. Alternative au squat pour patients avec douleur lombaire.',sets:'4× 12 reps à 60–70% 1RM'},
+  {id:'dead',name:'Soulevé de terre roumain',cat:'strength',lvl:'intermediate',wk:'3-4',muscle:'Ischio-jambiers, lombaires',equip:'Haltères',icon:'🏋️',desc:'Charge légère à modérée. Chaîne postérieure. Dos neutre obligatoire.',sets:'3× 10 reps, 90 sec repos'},
+  {id:'stpup',name:'Step-up',cat:'strength',lvl:'intermediate',wk:'3-4',muscle:'Quadriceps, fessiers',equip:'Marche',icon:'🪜',desc:'Monter sur une marche en contrôlant la descente. Force fonctionnelle.',sets:'3× 12 reps / jambe'},
+  {id:'plank',name:'Gainage frontal',cat:'core',lvl:'beginner',wk:'1-2',muscle:'Core, transverse',equip:'Tapis',icon:'💪',desc:'Position planche sur avant-bras. Respiration lente. Éviter la bascule lombaire.',sets:'3× 20–30 sec'},
+  {id:'sidep',name:'Gainage latéral',cat:'core',lvl:'beginner',wk:'1-2',muscle:'Obliques, core',equip:'Tapis',icon:'💪',desc:'Alignement épaule-hanche-cheville. Renforce les stabilisateurs latéraux.',sets:'3× 20 sec / côté'},
+  {id:'breath',name:'Respiration diaphragmatique',cat:'core',lvl:'beginner',wk:'1-2',muscle:'Diaphragme, core profond',equip:'Aucun',icon:'💨',desc:'Essentiel en prehab. Prépare à la toux contrôlée post-op. Inspiration 4 sec, expiration 6 sec.',sets:'3× 5 min / jour'},
+  {id:'bird',name:'Bird dog',cat:'core',lvl:'beginner',wk:'1-2',muscle:'Core, lombaires',equip:'Tapis',icon:'🐦',desc:'À 4 pattes : étendre bras et jambe opposés. Contrôle moteur et stabilité lombaire.',sets:'3× 10 reps / côté'},
+  {id:'dead2',name:'Dead bug',cat:'core',lvl:'intermediate',wk:'3-4',muscle:'Transverse, psoas',equip:'Tapis',icon:'🐛',desc:'Allongé sur le dos. Étendre alternativement bras et jambe. Lombaires au sol.',sets:'3× 10 reps / côté'},
+  {id:'pallof',name:'Pallof press',cat:'core',lvl:'intermediate',wk:'3-4',muscle:'Core anti-rotation',equip:'Élastique',icon:'🎯',desc:'Résistance anti-rotatoire. Stabilité fonctionnelle du tronc.',sets:'3× 12 reps / côté'},
+  {id:'hip',name:'Étirement fléchisseurs hanche',cat:'stretching',lvl:'beginner',wk:'1-2',muscle:'Psoas, iliaque',equip:'Tapis',icon:'🧘',desc:'En fente basse, bassin neutre. Prévient la rigidité post-alitement.',sets:'3× 30 sec / côté'},
+  {id:'hamstr',name:'Étirement ischio-jambiers',cat:'stretching',lvl:'beginner',wk:'1-2',muscle:'Ischio-jambiers',equip:'Tapis',icon:'🧘',desc:'Allongé sur le dos, jambe tendue. Doux et progressif.',sets:'3× 30 sec / côté'},
+  {id:'thora',name:'Mobilité thoracique',cat:'stretching',lvl:'beginner',wk:'1-2',muscle:'Colonne thoracique',equip:'Foam roller',icon:'🌀',desc:'Rouleau sous la colonne thoracique. Améliore la mécanique respiratoire.',sets:'2× 10 rotations / côté'},
+  {id:'calf2',name:'Étirement mollets',cat:'stretching',lvl:'beginner',wk:'1-2',muscle:'Mollets, soléaire',equip:'Mur',icon:'🧘',desc:'Contre un mur, jambe arrière tendue. Prévention TVP.',sets:'3× 30 sec / côté'},
+  {id:'should',name:'Mobilité épaule',cat:'stretching',lvl:'beginner',wk:'1-2',muscle:'Épaule, pectoral',equip:'Mur',icon:'🙆',desc:'Ouverture thoracique et rotation externe. Prépare à la ventilation sur table.',sets:'2× 10 cercles / sens'},
+];
+
+var COLORS={strength:'#FAEEDA',cardio:'#E1F5EE',core:'#EEEDFE',stretching:'#E6F1FB'};
+var LVL={beginner:'Débutant',intermediate:'Intermédiaire',advanced:'Avancé'};
+var filters={cat:'all',lvl:'all',wk:'all'};
+var prog={};
+
+function render(){
+  var q=document.getElementById('srch').value.toLowerCase();
+  var res=DB.filter(function(e){
+    return (filters.cat==='all'||e.cat===filters.cat)
+      &&(filters.lvl==='all'||e.lvl===filters.lvl)
+      &&(filters.wk==='all'||e.wk===filters.wk)
+      &&(!q||e.name.toLowerCase().indexOf(q)>=0||e.muscle.toLowerCase().indexOf(q)>=0||e.equip.toLowerCase().indexOf(q)>=0);
+  });
+  document.getElementById('info').textContent=res.length+' exercice'+(res.length>1?'s':'')+' trouvé'+(res.length>1?'s':'');
+  var html='';
+  for(var i=0;i<res.length;i++){
+    var e=res[i];
+    var added=!!prog[e.id];
+    html+='<div class="card'+(added?' on':'')+'" id="card-'+e.id+'">';
+    html+='<div class="card-top" style="background:'+COLORS[e.cat]+'">'+e.icon+'</div>';
+    html+='<div class="card-body">';
+    html+='<div class="cname">'+e.name+'</div>';
+    html+='<div class="tags">';
+    html+='<span class="tag" style="background:#E1F5EE;color:#0F6E56">'+e.muscle+'</span>';
+    html+='<span class="tag" style="background:#E6F1FB;color:#185FA5">'+(LVL[e.lvl]||e.lvl)+'</span>';
+    html+='<span class="tag" style="background:#F1EFE8;color:#5F5E5A">'+e.equip+'</span>';
+    html+='<span class="tag" style="background:#EEEDFE;color:#534AB7">'+(e.wk==='1-2'?'S1–2':'S3–4')+'</span>';
+    html+='</div>';
+    html+='<div class="cdesc">'+e.desc+'</div>';
+    html+='<div class="csets">Prescription : '+e.sets+'</div>';
+    html+='<button class="addbtn'+(added?' on':'')+'" onclick="toggle(\''+e.id+'\')">'+(added?'✓ Dans mon programme':'+ Ajouter au programme')+'</button>';
+    html+='</div></div>';
+  }
+  document.getElementById('grid').innerHTML=html;
+}
+
+function toggle(id){
+  if(prog[id])delete prog[id]; else prog[id]=DB.find(function(e){return e.id===id;});
+  document.getElementById('pc').textContent=Object.keys(prog).length;
+  render();
+  renderProg();
+}
+
+function renderProg(){
+  var items=Object.values(prog);
+  document.getElementById('s-str').textContent=items.filter(function(e){return e.cat==='strength';}).length;
+  document.getElementById('s-car').textContent=items.filter(function(e){return e.cat==='cardio';}).length;
+  document.getElementById('s-cor').textContent=items.filter(function(e){return e.cat==='core';}).length;
+  document.getElementById('s-stre').textContent=items.filter(function(e){return e.cat==='stretching';}).length;
+  if(!items.length){
+    document.getElementById('plist').innerHTML='<div class="empty">Aucun exercice sélectionné.<br>Ajoutez des exercices depuis la bibliothèque.</div>';
+    return;
+  }
+  var html='';
+  for(var i=0;i<items.length;i++){
+    var e=items[i];
+    html+='<div class="pitem"><div class="picon">'+e.icon+'</div><div class="pinfo"><h4>'+e.name+'</h4><p>'+e.muscle+' · '+e.equip+'</p><div class="psets">'+e.sets+'</div></div><button class="rmbtn" onclick="toggle(\''+e.id+'\')">Retirer</button></div>';
+  }
+  document.getElementById('plist').innerHTML=html;
+}
+
+function showTab(name){
+  ['lib','prog','plan'].forEach(function(t){
+    document.getElementById('v-'+t).style.display=t===name?'block':'none';
+    document.getElementById('t-'+t).className='tab'+(t===name?' on':'');
+  });
+  if(name==='prog')renderProg();
+}
+
+document.getElementById('t-lib').addEventListener('click',function(){showTab('lib');});
+document.getElementById('t-prog').addEventListener('click',function(){showTab('prog');});
+document.getElementById('t-plan').addEventListener('click',function(){showTab('plan');});
+document.getElementById('srch').addEventListener('input',render);
+
+document.querySelectorAll('.fb').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var f=btn.dataset.f;
+    var v=btn.dataset.v;
+    filters[f]=v;
+    document.querySelectorAll('[data-f="'+f+'"]').forEach(function(b){b.className='fb'+(b===btn?' on':'');});
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
