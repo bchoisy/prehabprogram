@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<style>
+body{font-family:system-ui,sans-serif;padding:20px;background:#f5f5f3}
+h2{font-size:14px;font-weight:500;margin-bottom:4px}
+.sub{font-size:12px;color:#888;margin-bottom:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.card{background:#fff;border-radius:10px;border:1px solid #e5e5e3;overflow:hidden}
+.card img{width:100%;height:150px;object-fit:contain;background:#f8f8f6;padding:8px;display:block}
+.card-body{padding:8px 10px}
+.name{font-size:12px;font-weight:500;margin-bottom:2px}
+.url{font-size:10px;color:#888;word-break:break-all;font-family:monospace}
+.ok{background:#D1FAE5;color:#065F46;font-size:11px;padding:2px 6px;border-radius:6px}
+.fail{background:#FEE2E2;color:#991B1B;font-size:11px;padding:2px 6px;border-radius:6px}
+#status{font-size:13px;color:#666;margin-bottom:12px;padding:8px 12px;background:#fff;border-radius:8px;border:1px solid #e5e5e3}
+</style>
+</head>
+<body>
+<h2>Test images wger.de — API publique</h2>
+<div class="sub">Recherche des exercices via l'API wger, affichage des images trouvées.</div>
+<div id="status">Chargement...</div>
+<div class="grid" id="grid"></div>
+
+<script>
+const SEARCHES = [
+  {label:'Squat', q:'squat'},
+  {label:'Lunge', q:'lunge'},
+  {label:'Glute bridge', q:'glute bridge'},
+  {label:'Calf raise', q:'calf raise'},
+  {label:'Plank', q:'plank'},
+  {label:'Bird dog', q:'bird dog'},
+  {label:'Dead bug', q:'dead bug'},
+  {label:'Step up', q:'step up'},
+  {label:'Goblet squat', q:'goblet squat'},
+  {label:'Romanian deadlift', q:'romanian deadlift'},
+  {label:'Shoulder press', q:'shoulder press'},
+  {label:'Dumbbell row', q:'dumbbell row'},
+  {label:'Lateral raise', q:'lateral raise'},
+  {label:'Bicep curl', q:'bicep curl'},
+  {label:'Tricep extension', q:'tricep extension'},
+  {label:'Pallof press', q:'pallof'},
+  {label:'Stationary bike', q:'bicycle'},
+];
+
+const BASE = 'https://wger.de';
+const grid = document.getElementById('grid');
+const status = document.getElementById('status');
+let done = 0;
+
+async function searchExercise(item) {
+  try {
+    const r = await fetch(`${BASE}/api/v2/exercise/search/?term=${encodeURIComponent(item.q)}&language=english&format=json`);
+    const data = await r.json();
+    const suggestions = data.suggestions || [];
+    if (!suggestions.length) return {label: item.label, found: false};
+    // Prendre le premier résultat
+    const ex = suggestions[0];
+    const exId = ex.data?.id || ex.id;
+    if (!exId) return {label: item.label, found: false};
+    // Chercher l'image
+    const imgR = await fetch(`${BASE}/api/v2/exerciseimage/?exercise_base=${exId}&format=json`);
+    const imgData = await imgR.json();
+    const imgs = imgData.results || [];
+    const main = imgs.find(i => i.is_main) || imgs[0];
+    return {
+      label: item.label,
+      found: !!main,
+      name: ex.value || ex.name || item.label,
+      exId,
+      imgUrl: main ? main.image : null,
+    };
+  } catch(e) {
+    return {label: item.label, found: false, error: e.message};
+  }
+}
+
+async function run() {
+  status.textContent = `Recherche de ${SEARCHES.length} exercices via wger.de...`;
+  const results = await Promise.all(SEARCHES.map(searchExercise));
+  done = results.filter(r => r.found).length;
+  status.textContent = `${done} / ${SEARCHES.length} exercices trouvés avec image.`;
+  
+  results.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    if (r.found && r.imgUrl) {
+      card.innerHTML = `
+        <img src="${r.imgUrl}" alt="${r.name}" onerror="this.parentNode.querySelector('.fail-msg').style.display='block';this.style.display='none'">
+        <div class="fail-msg" style="display:none;padding:20px;color:#999;font-size:11px;text-align:center">Image introuvable</div>
+        <div class="card-body">
+          <div class="name">${r.label}</div>
+          <div class="url">${r.imgUrl}</div>
+          <span class="ok">ID: ${r.exId}</span>
+        </div>`;
+    } else {
+      card.innerHTML = `
+        <div style="height:150px;background:#f0ede6;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:11px">Aucune image</div>
+        <div class="card-body">
+          <div class="name">${r.label}</div>
+          <span class="fail">Non trouvé${r.error ? ' : '+r.error : ''}</span>
+        </div>`;
+    }
+    grid.appendChild(card);
+  });
+}
+
+run();
+</script>
+</body>
+</html>
